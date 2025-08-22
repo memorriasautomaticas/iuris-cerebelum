@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Moragas Legal IJA — Dashboard Interactivo (SaaS Legal)</title>
+  <meta name="description" content="Dashboard de ventas interactivo para Moragas Legal IJA (Inteligencia Jurídica Aumentada). Multiplica la capacidad por letrado, eleva indemnizaciones y reduce tiempo no facturable.">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ===========================
+       RESET + BASE
+    ============================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body, h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd { margin: 0; }
+    ul[role="list"], ol[role="list"] { list-style: none; margin: 0; padding: 0; }
+    img, video, canvas { max-width: 100%; height: auto; display: block; }
+    input, button, textarea, select { font: inherit; color: inherit; }
+
+    /* ===========================
+       THEME VARIABLES
+    ============================ */
+    :root{
+      /* Paleta "Moderno-Legal" */
+      --bg: #1a1a2e;                /* Fondo oscuro */
+      --surface: #0f1b37;           /* Superficies (vidrio oscuro) */
+      --surface-2: #16213e;         /* Acento vibrante/CTA */
+      --primary: #e94560;           /* Contraste principal */
+      --primary-2: #ff6a7e;         /* Gradiente de apoyo */
+      --text: #eaeaf2;              /* Texto principal */
+      --muted: #a2adbe;             /* Texto secundario */
+      --ok: #1abc9c;                /* Verde éxito */
+      --warn: #f0b429;              /* Amarillo */
+      --danger: #f05365;            /* Rojo sutil */
+
+      --radius: 14px;
+      --radius-lg: 18px;
+      --shadow-1: 0 10px 30px rgba(0,0,0,0.25);
+      --shadow-2: 0 24px 60px rgba(0,0,0,0.35);
+      --glass: rgba(255,255,255,0.04);
+      --glass-strong: rgba(255,255,255,0.08);
+
+      --font-display: 'Montserrat', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --font-body: 'Lato', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* ===========================
+       GLOBAL STYLES
+    ============================ */
+    body{
+      background: radial-gradient(1200px 1200px at 80% -10%, rgba(233,69,96,0.08), transparent 60%), var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+
+    a { color: var(--primary); text-decoration: none; }
+    a:focus { outline: 3px solid rgba(233,69,96,0.5); outline-offset: 2px; border-radius: 6px; }
+
+    .container{
+      width: min(1200px, 92vw);
+      margin: 0 auto;
+    }
+
+    .screen{
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      padding: clamp(20px, 5vh, 48px) 0;
+      overflow: hidden;
+    }
+
+    h1, h2{
+      font-family: var(--font-display);
+      letter-spacing: 0.5px;
+    }
+    h1{
+      text-transform: uppercase;
+      font-weight: 900;
+      line-height: 1.05;
+      font-size: clamp(28px, 5.2vw, 64px);
+    }
+    h2{
+      text-transform: none;
+      font-weight: 800;
+      font-size: clamp(22px, 3.2vw, 36px);
+      line-height: 1.15;
+    }
+    p.lead{
+      color: var(--muted);
+      font-size: clamp(16px, 1.6vw, 20px);
+    }
+
+    /* ===========================
+       NAV / BRAND
+    ============================ */
+    .nav{
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 50;
+      background: linear-gradient(to bottom, rgba(10,13,26,0.75), transparent);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      padding: 14px 0;
+      transition: background 0.3s ease;
+    }
+    .nav.scrolled{
+      background: rgba(10,13,26,0.85);
+      box-shadow: var(--shadow-1);
+    }
+    .nav-inner{
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+    }
+    .brand{
+      display: flex; align-items: center; gap: 12px;
+      font-family: var(--font-display);
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: .8px;
+    }
+    .brand .logo{
+      width: 34px; height: 34px; border-radius: 8px;
+      background: radial-gradient(180px 120px at 30% 20%, rgba(233,69,96,0.65), rgba(22,33,62,0.85));
+      box-shadow: 0 8px 22px rgba(233,69,96,.25), inset 0 0 22px rgba(255,255,255,.06);
+    }
+    .nav-cta{
+      display: flex; gap: 10px; align-items: center;
+    }
+
+    /* ===========================
+       BUTTONS
+    ============================ */
+    .btn{
+      --pad-y: 14px; --pad-x: 22px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: var(--pad-y) var(--pad-x);
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: white;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      box-shadow: 0 8px 24px rgba(233,69,96,.35), inset 0 -2px 6px rgba(0,0,0,0.25);
+      transform: translateY(0);
+      transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+      cursor: pointer;
+    }
+    .btn:hover{
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(233,69,96,.45), inset 0 -2px 8px rgba(0,0,0,0.35);
+      filter: brightness(1.05);
+    }
+    .btn:active{ transform: translateY(0); }
+    .btn.alt{
+      background: var(--surface-2);
+      border-color: rgba(255,255,255,0.1);
+      box-shadow: 0 8px 22px rgba(22,33,62,.45), inset 0 -2px 6px rgba(0,0,0,0.3);
+    }
+
+    .chip{
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 12px; border-radius: 999px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+      font-size: 13px; font-weight: 700;
+      letter-spacing: .3px;
+    }
+    .chip .dot{ width: 8px; height: 8px; border-radius: 99px; background: var(--primary); box-shadow: 0 0 0 4px rgba(233,69,96,.15); }
+
+    /* ===========================
+       ANIMATIONS (entry + micro)
+    ============================ */
+    .reveal{ opacity: 0; transform: translateY(18px) scale(.98); transition: opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in-view{ opacity: 1; transform: translateY(0) scale(1); }
+    [data-animate="slide-left"]{ transform: translateX(24px); }
+    [data-animate="slide-left"].in-view{ transform: translateX(0); }
+    [data-animate="slide-right"]{ transform: translateX(-24px); }
+    [data-animate="slide-right"].in-view{ transform: translateX(0); }
+    [data-animate="zoom-in"]{ transform: scale(.96); }
+    [data-animate="zoom-in"].in-view{ transform: scale(1); }
+
+    @media (prefers-reduced-motion: reduce){
+      .reveal, [data-animate] { transition: none !important; opacity: 1 !important; transform: none !important; }
+    }
+
+    /* ===========================
+       SECTION 1: HERO
+    ============================ */
+    #hero{
+      padding-top: 84px; /* espacio para nav */
+    }
+    .hero-wrap{
+      position: relative;
+      display: grid; align-items: center;
+      grid-template-columns: 1fr;
+      min-height: calc(100vh - 84px);
+    }
+    .hero-bg{
+      position: absolute; inset: 0;
+      pointer-events: none;
+    }
+    #heroCanvas{
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      filter: blur(0.2px) brightness(0.92) saturate(1.05);
+    }
+    .hero-overlay{
+      position: absolute; inset: 0;
+      background: radial-gradient(900px 900px at 10% 10%, rgba(22,33,62,0.6), transparent 60%),
+                  radial-gradient(1000px 800px at 80% 20%, rgba(233,69,96,0.12), transparent 65%),
+                  linear-gradient(to bottom, rgba(10,12,22,0.65), rgba(10,12,22,0.85));
+      mix-blend-mode: normal;
+    }
+    .hero-content{
+      position: relative; z-index: 2;
+      display: grid; gap: 22px;
+      text-align: center;
+      padding: 20px;
+    }
+    .hero-sub{
+      color: var(--muted);
+      font-size: clamp(16px, 1.5vw, 18px);
+      max-width: 900px; margin: 0 auto;
+    }
+    .hero-cta{ display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+    .hero-badges{
+      display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+    }
+
+    /* ===========================
+       SECTION 2: EL PROBLEMA (Carrusel)
+    ============================ */
+    .section{
+      gap: 22px;
+    }
+    .section .section-header{
+      display: grid; gap: 10px; margin-bottom: 10px;
+    }
+    .pain-carousel{
+      position: relative;
+      display: grid;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .pain-track{
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(280px, 1fr);
+      gap: 16px;
+      overflow: hidden;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      padding: 8px 2px 2px 2px;
+    }
+    .pain-card{
+      position: relative;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      min-height: 240px;
+      box-shadow: var(--shadow-1);
+      overflow: hidden;
+      scroll-snap-align: start;
+      transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+    .pain-card:hover{
+      transform: translateY(-4px) scale(1.02);
+      border-color: rgba(233,69,96,.36);
+      box-shadow: 0 22px 60px rgba(233,69,96,.18);
+    }
+    .pain-card .stat{
+      position: absolute; right: 16px; bottom: 16px;
+      padding: 8px 10px; border-radius: 10px;
+      background: rgba(233,69,96,.12);
+      border: 1px solid rgba(233,69,96,.35);
+      color: #ffdce1; font-weight: 800; letter-spacing: .5px;
+      transform: translateY(12px); opacity: 0;
+      transition: transform .25s ease, opacity .25s ease;
+    }
+    .pain-card:hover .stat{ transform: translateY(0); opacity: 1; }
+    .pain-meta{ color: var(--muted); font-size: 14px; margin-top: 8px; }
+    .pain-title{ font-family: var(--font-display); font-weight: 800; font-size: 18px; margin-bottom: 10px; }
+    .pain-arrows{
+      position: absolute; inset: 0; pointer-events: none;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 4px;
+    }
+    .arrow{
+      pointer-events: auto;
+      width: 42px; height: 42px; border-radius: 999px;
+      background: rgba(22,33,62,.9);
+      border: 1px solid rgba(255,255,255,.08);
+      display: grid; place-items: center;
+      color: #fff;
+      box-shadow: var(--shadow-1);
+      cursor: pointer;
+      transition: transform .2s ease, background .2s ease;
+    }
+    .arrow:hover{ transform: scale(1.05); background: rgba(22,33,62,1); }
+
+    /* ===========================
+       SECTION 3: LA SOLUCIÓN (2 cols)
+    ============================ */
+    .solution{
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: clamp(20px, 4vw, 50px);
+      align-items: center;
+    }
+    @media (max-width: 980px){
+      .solution{ grid-template-columns: 1fr; }
+    }
+    .solution .left{
+      display: grid; gap: 16px;
+    }
+    .solution p{ color: var(--muted); }
+    .benefits{
+      display: grid; gap: 12px;
+      margin-top: 8px;
+    }
+    .benefit{
+      display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: start;
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 12px;
+    }
+    .icon{
+      width: 40px; height: 40px; border-radius: 10px;
+      display: grid; place-items: center;
+      background: radial-gradient(120px 80px at 20% 20%, rgba(233,69,96,.3), rgba(22,33,62,.9));
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 0 12px rgba(255,255,255,.05);
+    }
+    .detail-cards{
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px;
+    }
+    .detail-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    @media (max-width: 980px){
+      .detail-cards{ grid-template-columns: 1fr; }
+    }
+    details.fold{
+      margin-top: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 10px 12px;
+    }
+    details.fold summary{
+      cursor: pointer; list-style: none; outline: none; user-select: none;
+      font-weight: 800; color: #f0f2ff;
+    }
+    details.fold[open]{
+      background: rgba(255,255,255,0.055);
+      border-color: rgba(233,69,96,0.2);
+    }
+    .fold-grid{
+      display: grid; gap: 10px; margin-top: 8px;
+    }
+    .fold-grid .kv{
+      display: grid; grid-template-columns: 150px 1fr; gap: 12px;
+      font-size: 14px; color: var(--muted);
+    }
+    @media (max-width: 640px){
+      .fold-grid .kv{ grid-template-columns: 1fr; }
+    }
+
+    /* Visual simulada (derecha) */
+    .viz{
+      position: relative;
+      background: radial-gradient(80% 80% at 10% 10%, rgba(233,69,96,.10), rgba(22,33,62, .9));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg);
+      min-height: 380px;
+      overflow: hidden;
+      box-shadow: var(--shadow-2);
+    }
+    .viz .hud{
+      position: absolute; top: 10px; left: 10px; right: 10px;
+      display: grid; grid-template-columns: 120px 1fr 90px; gap: 8px;
+      background: rgba(0,0,0,.22); border: 1px solid rgba(255,255,255,0.08);
+      padding: 8px; border-radius: 10px;
+      backdrop-filter: blur(4px);
+    }
+    .viz .hud .pill{
+      height: 20px; border-radius: 999px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .viz .bars{
+      position: absolute; left: 14px; right: 14px; bottom: 14px;
+      height: 40%;
+      display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px;
+      align-items: end;
+    }
+    .viz .bar{
+      background: linear-gradient(180deg, rgba(233,69,96,.85), rgba(233,69,96,.45));
+      border: 1px solid rgba(233,69,96, .55);
+      border-radius: 8px 8px 4px 4px;
+      transform-origin: bottom;
+      animation: rise 3s ease-in-out infinite;
+      box-shadow: 0 10px 22px rgba(233,69,96,.25);
+    }
+    .viz .lines{
+      position: absolute; inset: 0; pointer-events: none;
+    }
+    @keyframes rise{
+      0%, 100%{ transform: scaleY(.3); filter: brightness(.85); }
+      50%{ transform: scaleY(1.0); filter: brightness(1.05); }
+    }
+    .node{
+      position: absolute; width: 8px; height: 8px; border-radius: 999px;
+      background: #fff; opacity: .6;
+      box-shadow: 0 0 0 6px rgba(255,255,255,.06), 0 0 16px rgba(233,69,96,.6);
+      animation: float 8s ease-in-out infinite;
+    }
+    @keyframes float{
+      0%, 100%{ transform: translateY(0) }
+      50%{ transform: translateY(-16px) }
+    }
+
+    /* ===========================
+       SECTION 4: CALCULADORA ROI
+    ============================ */
+    .roi{
+      display: grid; gap: 18px;
+    }
+    .calc{
+      display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px;
+      align-items: center;
+    }
+    @media (max-width: 980px){
+      .calc{ grid-template-columns: 1fr; }
+    }
+    .panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-lg); padding: 18px;
+      box-shadow: var(--shadow-1);
+    }
+    .field{
+      display: grid; gap: 6px; margin-bottom: 14px;
+    }
+    .field label{
+      font-weight: 800; color: #f1f1ff; font-family: var(--font-display); letter-spacing: .3px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .range-wrap{ position: relative; }
+    input[type="range"]{
+      width: 100%; height: 8px;
+      -webkit-appearance: none; appearance: none;
+      background: rgba(255,255,255,0.08); border-radius: 999px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance: none; appearance: none;
+      width: 24px; height: 24px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      border: 2px solid #fff;
+      box-shadow: 0 6px 16px rgba(233,69,96,.4);
+      cursor: grab;
+    }
+    .hint{ color: var(--muted); font-size: 13px; }
+    .calc-actions{ display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+    .results{
+      display: grid; gap: 12px; align-content: start;
+    }
+    .kpi{
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 16px;
+      display: grid; gap: 6px;
+    }
+    .kpi small{ color: var(--muted); text-transform: uppercase; letter-spacing: .6px; font-weight: 800; }
+    .kpi .val{
+      font-family: var(--font-display); font-weight: 900; letter-spacing: .3px;
+      font-size: clamp(28px, 4.8vw, 52px);
+    }
+    .kpi .val.accent{ color: var(--primary-2); text-shadow: 0 2px 16px rgba(233,69,96,.35); }
+    .calc-note{ color: var(--muted); font-size: 14px; }
+
+    /* ===========================
+       SECTION 5: EJEMPLOS (Tabs + Before/After)
+    ============================ */
+    .examples{
+      display: grid; grid-template-columns: 280px 1fr; gap: 18px; align-items: stretch;
+    }
+    @media (max-width: 980px){
+      .examples{ grid-template-columns: 1fr; }
+    }
+    .tabs{
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 8px;
+      display: grid; gap: 6px; align-content: start;
+    }
+    .tab-btn{
+      display: grid; gap: 3px; align-content: center;
+      padding: 12px; border-radius: 12px;
+      text-align: left;
+      background: transparent; border: 1px solid transparent; color: var(--text);
+      cursor: pointer; transition: background .2s ease, border-color .2s ease;
+      font-weight: 800;
+    }
+    .tab-btn small{ color: var(--muted); font-weight: 700; }
+    .tab-btn.active{
+      background: rgba(233,69,96,.12);
+      border-color: rgba(233,69,96,.4);
+      box-shadow: inset 0 0 0 1px rgba(233,69,96,.2);
+    }
+    .tab-panel{
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 14px; display: grid; gap: 12px;
+      box-shadow: var(--shadow-1);
+      min-height: 420px;
+    }
+    .compare{
+      position: relative; border-radius: 12px; overflow: hidden; height: 360px;
+      background: #0c1226;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .compare .layer{
+      position: absolute; inset: 0; display: grid; place-items: center;
+      padding: 18px;
+    }
+    .compare .before{
+      background: radial-gradient(100% 80% at 20% 10%, rgba(240,84,101,.08), rgba(16,20,36,1));
+      z-index: 2; width: 50%; border-right: 1px dashed rgba(255,255,255,0.2);
+      overflow: hidden;
+    }
+    .compare .after{
+      background: radial-gradient(100% 80% at 80% 10%, rgba(26,188,156,.10), rgba(16,20,36,1));
+      z-index: 1;
+    }
+    .compare .badge{
+      position: absolute; top: 12px; left: 12px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 999px; padding: 6px 10px; color: var(--muted); font-weight: 800; letter-spacing: .4px;
+    }
+    .compare .handle{
+      position: absolute; top: 0; bottom: 0; left: calc(50% - 18px); width: 36px;
+      background: rgba(233,69,96,.25);
+      border: 1px solid rgba(233,69,96,.5);
+      backdrop-filter: blur(2px);
+      border-radius: 12px;
+      display: grid; place-items: center; color: #fff; font-weight: 900; letter-spacing: 1px;
+      z-index: 3;
+    }
+    .compare input[type="range"]{
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: ew-resize;
+    }
+    .viz-mini{
+      width: 90%; max-width: 520px; height: 200px;
+      border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      overflow: hidden; position: relative;
+      box-shadow: var(--shadow-1);
+    }
+    .viz-mini .pulse{
+      position: absolute; width: 8px; height: 8px; border-radius: 99px;
+      background: var(--ok);
+      box-shadow: 0 0 22px rgba(26,188,156,.65), 0 0 0 8px rgba(26,188,156,.15);
+      animation: beat 2.6s ease-in-out infinite;
+    }
+    @keyframes beat{ 0%, 100%{ transform: scale(1) } 50%{ transform: scale(1.3) } }
+
+    /* ===========================
+       SECTION 6: TESTIMONIOS (Carrusel)
+    ============================ */
+    .testimonials{
+      display: grid; gap: 14px;
+    }
+    .t-carousel{
+      position: relative; overflow: hidden; border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      box-shadow: var(--shadow-1);
+    }
+    .t-track{
+      display: grid; grid-auto-flow: column; grid-auto-columns: 100%;
+      transition: transform .6s cubic-bezier(.2,.7,.2,1);
+    }
+    .t-slide{
+      padding: clamp(16px, 3vw, 28px);
+      display: grid; gap: 12px; align-content: center; min-height: 300px;
+    }
+    .quote{
+      font-family: var(--font-display);
+      font-size: clamp(18px, 2vw, 22px);
+      font-weight: 800; color: #fff;
+    }
+    .who{ color: var(--muted); font-weight: 700; }
+    .dots{ display: flex; justify-content: center; gap: 6px; padding: 10px; }
+    .dot{
+      width: 8px; height: 8px; border-radius: 99px; background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.14);
+      transition: transform .2s ease, background .2s ease;
+      cursor: pointer;
+    }
+    .dot.active{ background: var(--primary); transform: scale(1.3); }
+
+    /* ===========================
+       SECTION 7: CTA FINAL
+    ============================ */
+    .cta-final{
+      text-align: center; display: grid; gap: 14px;
+    }
+    .cta-final p{ color: var(--muted); font-size: clamp(16px, 1.6vw, 20px); }
+    .cta-stack{ display: grid; gap: 14px; justify-items: center; }
+    .cta-emph{
+      font-size: clamp(28px, 5vw, 56px);
+      background: linear-gradient(90deg, #fff, #ffdde3);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 6px 42px rgba(233,69,96,.25);
+    }
+
+    /* ===========================
+       MODAL DEMO
+    ============================ */
+    .modal{
+      position: fixed; inset: 0; z-index: 100;
+      display: none; place-items: center;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .modal.open{ display: grid; }
+    .modal-card{
+      width: min(560px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 18px;
+      box-shadow: var(--shadow-2);
+    }
+    .form-grid{ display: grid; gap: 10px; margin-top: 8px; }
+    .in-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 640px){ .in-row{ grid-template-columns: 1fr; } }
+    .input{
+      display: grid; gap: 6px;
+    }
+    .input input, .input select, .input textarea{
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: #fff; padding: 12px 14px; border-radius: 12px; outline: none;
+    }
+    .input input:focus, .input select:focus, .input textarea:focus{
+      border-color: rgba(233,69,96,0.45);
+      box-shadow: 0 0 0 3px rgba(233,69,96,0.18);
+    }
+    .modal-actions{ display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 10px; flex-wrap: wrap; }
+    .muted{ color: var(--muted); font-size: 12px; }
+
+    /* ===========================
+       FOOTER
+    ============================ */
+    footer{
+      padding: 24px 0; color: var(--muted);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.28);
+      text-align: center; font-size: 13px;
+    }
+
+    /* ===========================
+       ACCESSIBILITY HELPERS
+    ============================ */
+    .sr-only{
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+      white-space: nowrap; border: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <a href="#hero" class="sr-only">Saltar al contenido</a>
+
+  <!-- ===========================
+       NAV
+  ============================ -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <span>Moragas Legal IJA</span>
+      </div>
+      <div class="nav-cta">
+        <a href="#cta-final" class="btn">Solicitar Demo</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===========================
+       SECTION 1: HERO
+  ============================ -->
+  <section id="hero" class="screen">
+    <div class="hero-wrap container">
+      <div class="hero-bg">
+        <canvas id="heroCanvas" aria-hidden="true"></canvas>
+        <div class="hero-overlay" aria-hidden="true"></div>
+      </div>
+
+      <div class="hero-content">
+        <h1 class="reveal" data-animate="zoom-in">
+          Moragas Legal IJA — Inteligencia Jurídica Aumentada, desplegable en 90 días
+        </h1>
+        <p class="hero-sub reveal" data-animate="slide-left">
+          Multiplica x1,4–1,8 la capacidad por letrado, eleva un 10–15% la cuantía media y reduce un 70–80% el tiempo no facturable en búsqueda/redacción repetitiva. Enfocado en seguro, RC, negligencia médica y bancario.
+        </p>
+        <div class="hero-cta reveal" data-animate="slide-right">
+          <button class="btn" id="cta-hero">Descubrir Mi Eficiencia</button>
+          <a class="btn alt" href="#roi">Calcular ROI</a>
+        </div>
+        <div class="hero-badges reveal" data-animate="fade-up" aria-label="Fundamentos regulatorios">
+          <span class="chip"><span class="dot"></span> Baremo 2025 (DGSFP)</span>
+          <span class="chip"><span class="dot"></span> LRCSCVM: oferta motivada ≤ 3 meses (BOE)</span>
+          <span class="chip"><span class="dot"></span> EU AI Act: GPAI agosto 2025</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 2: EL PROBLEMA
+  ============================ -->
+  <section id="problema" class="screen">
+    <div class="container section">
+      <div class="section-header">
+        <h2 class="reveal">¿Inviertes más tiempo en gestionar que en litigar?</h2>
+        <p class="lead reveal" data-animate="slide-left">
+          Tres fricciones críticas que drenan horas facturables y merman resultados.
+        </p>
+      </div>
+
+      <div class="pain-carousel reveal" data-animate="zoom-in" aria-roledescription="carrusel de problemas">
+        <div class="pain-track" id="painTrack" tabindex="0" aria-label="Desliza para ver problemas">
+          <article class="pain-card">
+            <div class="pain-title">Lectura masiva e ineficiente</div>
+            <p class="pain-meta">
+              Jurisprudencia dispersa; ruido vs. ratio decidendi; sesgos por memoria selectiva.
+            </p>
+            <div class="stat">≤ 30 s por respuesta utilizable</div>
+          </article>
+          <article class="pain-card">
+            <div class="pain-title">Redacción repetitiva y riesgo de alucinación</div>
+            <p class="pain-meta">
+              Plantillas heterogéneas, anexos sin control y citas sin anclaje verificable.
+            </p>
+            <div class="stat">Borrador válido ≤ 15 min</div>
+          </article>
+          <article class="pain-card">
+            <div class="pain-title">Ofertas a la baja y dilaciones</div>
+            <p class="pain-meta">
+              Negociación sin inteligencia comparada ni presión por plazo (art. 7 LRCSCVM).
+            </p>
+            <div class="stat">+35–60% vs. oferta inicial</div>
+          </article>
+        </div>
+        <div class="pain-arrows" aria-hidden="false">
+          <button class="arrow" aria-label="Anterior" id="painPrev" title="Anterior">
+            ◀
+          </button>
+          <button class="arrow" aria-label="Siguiente" id="painNext" title="Siguiente">
+            ▶
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 3: LA SOLUCIÓN (2 columnas)
+  ============================ -->
+  <section id="solucion" class="screen">
+    <div class="container solution">
+      <div class="left">
+        <h2 class="reveal">La Solución: Plataforma de IJA Moragas Legal</h2>
+        <p class="reveal" data-animate="slide-left">
+          Un stack simple, seguro y ampliable para multiplicar la capacidad por letrado y elevar resultados, con cumplimiento por diseño (AEPD, EU AI Act) y reglas sectoriales (Baremo 2025, LRCSCVM).
+        </p>
+
+        <div class="benefits">
+          <div class="benefit reveal" data-animate="fade-up">
+            <div class="icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" opacity=".92"><path d="M12 2l8 4v6c0 5-3.5 9.74-8 10-4.5-.26-8-5-8-10V6l8-4zm0 2.18L6 6.5v5.5c0 4.15 2.93 8.25 6 8.5 3.07-.25 6-4.35 6-8.5V6.5l-6-2.32zM7 9h10v2H7V9zm0 4h7v2H7v-2z"></path></svg>
+            </div>
+            <div>
+              <strong>Autopiloto de Expedientes</strong> — Intake guiado, OCR/ETL y timeline con plazos (oferta motivada ≤ 3 meses). Reclamación previa lista en ≤ 48 h.
+            </div>
+          </div>
+          <div class="benefit reveal" data-animate="fade-up">
+            <div class="icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" opacity=".92"><path d="M3 4h18v2H3V4zm0 7h18v2H3v-2zm0 7h18v2H3v-2z"></path></svg>
+            </div>
+            <div>
+              <strong>Oráculo de Jurisprudencia</strong> — Búsqueda proactiva y explicable con RAG, extractos anclados (párrafo exacto + enlace) y contraejemplos.
+            </div>
+          </div>
+          <div class="benefit reveal" data-animate="fade-up">
+            <div class="icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" opacity=".92"><path d="M12 3l9 6-9 6-9-6 9-6zm0 8.2l7.2-4.8L12 3.6 4.8 6.4 12 11.2zM3 17.4l9 5.6 9-5.6-2.6-1.6L12 20.4 5.6 15.8 3 17.4z"></path></svg>
+            </div>
+            <div>
+              <strong>Arsenal Anti-Aseguradora + Generador de Escritos</strong> — Contraoferta con Baremo y jurisprudencia; sanción por demora; escritos con anexos y citas verificables.
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-cards">
+          <div class="detail-card reveal" data-animate="slide-left"><strong>Arquitectura</strong><br> Orquestación n8n; LLM local (Ollama) con fallback cifrado; RAG: Qdrant + PostgreSQL; OCR/ETL: docTR/PaddleOCR + PyMuPDF.</div>
+          <div class="detail-card reveal" data-animate="slide-left"><strong>Fuentes</strong><br> CENDOJ/CGPJ, DGSFP/UNESPA (Baremo), VLex/Aranzadi (licencia para cobertura completa).</div>
+          <div class="detail-card reveal" data-animate="slide-left"><strong>Seguridad</strong><br> Aislamiento por expediente, cifrado en reposo y tránsito, registros de acceso, retención/derechos RGPD, DPIA específica.</div>
+        </div>
+
+        <details class="fold reveal" data-animate="fade-up">
+          <summary>Ver flujos n8n y cumplimiento</summary>
+          <div class="fold-grid" role="list">
+            <div class="kv" role="listitem"><strong>ML-01 Intake & OCR</strong> <span>Webhook seguro, extracción de campos, timeline y checklist.</span></div>
+            <div class="kv" role="listitem"><strong>ML-02 Baremo Engine</strong> <span>Cálculo base + particular + secuelas con tablas 2025.</span></div>
+            <div class="kv" role="listitem"><strong>ML-03 Plazos & Alertas</strong> <span>Oferta motivada (≤ 3m), prescripción y agenda.</span></div>
+            <div class="kv" role="listitem"><strong>ML-04 Juris-RAG</strong> <span>Semántico multi-fuente, extractos con ratio decidendi y contraejemplos.</span></div>
+            <div class="kv" role="listitem"><strong>ML-05 Arsenal Aseguradoras</strong> <span>Perfiles, propuesta contraoferta, texto sanción por demora.</span></div>
+            <div class="kv" role="listitem"><strong>ML-06 Drafts Engine</strong> <span>Burofax/demanda/recurso con anclajes y anexos numerados.</span></div>
+            <div class="kv" role="listitem"><strong>ML-07 Portal Cliente</strong> <span>Estado, mensajería, solicitud de docs y consentimientos.</span></div>
+          </div>
+          <div class="fold-grid" style="margin-top:8px;">
+            <div class="kv"><strong>RGPD / AI Act</strong> <span>DPIA, registro de tratamientos, consentimiento por capas, HIL, model cards, data lineage.</span></div>
+            <div class="kv"><strong>Reutilización</strong> <span>Autorización CENDOJ/CGPJ o proveedor licenciado (VLex/Aranzadi) para explotación comercial.</span></div>
+          </div>
+        </details>
+      </div>
+
+      <div class="viz reveal" data-animate="slide-right" aria-label="Simulación abstracta de interfaz procesando datos">
+        <div class="hud" aria-hidden="true">
+          <div class="pill"></div><div class="pill"></div><div class="pill"></div>
+        </div>
+        <!-- Barras dinámicas -->
+        <div class="bars" aria-hidden="true" id="bars"></div>
+        <!-- SVG líneas animadas -->
+        <svg class="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="glow" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0%" stop-color="rgba(233,69,96,.0)"/>
+              <stop offset="50%" stop-color="rgba(233,69,96,.8)"/>
+              <stop offset="100%" stop-color="rgba(233,69,96,.0)"/>
+            </linearGradient>
+          </defs>
+          <polyline points="0,60 20,50 40,55 60,35 80,40 100,28"
+            fill="none" stroke="url(#glow)" stroke-width="1.5">
+            <animate attributeName="points" dur="5s" repeatCount="indefinite"
+              values="0,62 20,50 40,55 60,35 80,40 100,28; 0,58 20,52 40,48 60,40 80,38 100,32; 0,60 20,50 40,55 60,35 80,40 100,28"/>
+          </polyline>
+          <polyline points="0,75 18,72 38,70 58,64 78,66 100,60"
+            fill="none" stroke="rgba(255,255,255,.25)" stroke-width="1">
+            <animate attributeName="points" dur="7s" repeatCount="indefinite"
+              values="0,75 18,72 38,70 58,64 78,66 100,60; 0,72 18,70 38,68 58,62 78,62 100,58; 0,75 18,72 38,70 58,64 78,66 100,60"/>
+          </polyline>
+        </svg>
+        <!-- Nodos flotantes -->
+        <div class="node" style="left: 18%; top: 38%; animation-delay: .2s;"></div>
+        <div class="node" style="left: 42%; top: 28%; animation-delay: 1s;"></div>
+        <div class="node" style="left: 64%; top: 46%; animation-delay: 2.1s;"></div>
+        <div class="node" style="left: 78%; top: 22%; animation-delay: 1.6s;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 4: CALCULADORA ROI
+  ============================ -->
+  <section id="roi" class="screen">
+    <div class="container roi">
+      <div class="section-header">
+        <h2 class="reveal">Calcula el Ahorro Anual. Sin Exageraciones.</h2>
+        <p class="lead reveal" data-animate="slide-left">
+          Basado en reducción realista del 70–80% del tiempo no facturable. Ajusta tus parámetros y obtén cifras animadas.
+        </p>
+      </div>
+
+      <div class="calc">
+        <div class="panel reveal" data-animate="fade-up" aria-labelledby="calc-title">
+          <h3 id="calc-title" class="sr-only">Parámetros de cálculo</h3>
+          <div class="field">
+            <label for="hoursWeek">Horas administrativas por semana
+              <span class="chip"><span class="dot"></span><span id="hoursWeekVal">8 h</span></span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" id="hoursWeek" min="1" max="20" step="1" value="8" aria-valuemin="1" aria-valuemax="20" aria-valuenow="8" aria-label="Horas administrativas por semana" />
+            </div>
+            <div class="hint">Tareas de búsqueda, lectura, redacción repetitiva, seguimiento y recordatorios.</div>
+          </div>
+
+          <div class="field">
+            <label for="costHour">Coste por hora facturable (€)
+              <span class="chip"><span class="dot"></span><span id="costHourVal">120 €</span></span>
+            </label>
+            <div class="range-wrap">
+              <input type="range" id="costHour" min="50" max="500" step="10" value="120" aria-valuemin="50" aria-valuemax="500" aria-valuenow="120" aria-label="Coste por hora facturable" />
+            </div>
+            <div class="hint">Tarifa interna promedio (no se comparte).</div>
+          </div>
+
+          <div class="calc-actions">
+            <button class="btn" id="calcBtn">Calcular mi ahorro</button>
+            <span class="muted">Asume ahorro del 75% de horas administrativas (dentro del rango 70–80%).</span>
+          </div>
+        </div>
+
+        <div class="panel reveal results" data-animate="slide-right" aria-live="polite">
+          <div class="kpi">
+            <small>Ahorro en Horas Mensuales</small>
+            <div class="val" id="resHours">0 h</div>
+          </div>
+          <div class="kpi">
+            <small>Ahorro Anual Estimado</small>
+            <div class="val accent" id="resEuros">€ 0</div>
+          </div>
+          <p class="calc-note" id="calcNote">
+            Estimación orientativa. No incluye potencial +10–15% en cuantías por mejor evidencia y presión por plazos (LRCSCVM).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 5: EJEMPLOS EN ACCIÓN
+  ============================ -->
+  <section id="ejemplos" class="screen">
+    <div class="container section">
+      <div class="section-header">
+        <h2 class="reveal">Ejemplos en Acción</h2>
+        <p class="lead reveal" data-animate="slide-left">Antes vs. Después — el usuario descubre el valor interactuando.</p>
+      </div>
+
+      <div class="examples">
+        <nav class="tabs reveal" data-animate="fade-up" aria-label="Ejemplos">
+          <button class="tab-btn active" data-tab="expedientes">
+            Autopiloto de Expedientes
+            <small>Intake → reclamación ≤ 48 h. Plazos sin vencimientos.</small>
+          </button>
+          <button class="tab-btn" data-tab="oraculo">
+            Oráculo de Jurisprudencia
+            <small>Consultas naturales con extractos anclados.</small>
+          </button>
+          <button class="tab-btn" data-tab="arsenal">
+            Arsenal Anti-Aseguradora
+            <small>Contraoferta robusta y sanción por demora.</small>
+          </button>
+        </nav>
+
+        <div class="tab-panel reveal" data-animate="slide-right">
+          <div class="compare" id="compare">
+            <div class="layer after" id="afterLayer" aria-label="Con Moragas Legal IJA">
+              <div class="viz-mini" aria-hidden="true">
+                <!-- Artifacts "después" -->
+                <div class="pulse" style="top: 20%; left: 12%;"></div>
+                <div class="pulse" style="top: 52%; left: 36%; animation-delay: .8s;"></div>
+                <div class="pulse" style="top: 30%; left: 72%; animation-delay: 1.2s;"></div>
+              </div>
+              <div style="text-align:center; margin-top: 10px;">
+                <strong style="color:#dff7f0">Con IJA</strong> — timeline vivo, recordatorios y documentos listos.
+              </div>
+            </div>
+            <div class="layer before" id="beforeLayer" aria-label="Proceso manual">
+              <div class="viz-mini" aria-hidden="true">
+                <!-- Artifacts "antes" (más ruido) -->
+                <div class="pulse" style="top: 46%; left: 18%; background: var(--warn); box-shadow: 0 0 22px rgba(240,180,41,.65), 0 0 0 8px rgba(240,180,41,.15)"></div>
+                <div class="pulse" style="top: 68%; left: 48%; background: var(--danger); box-shadow: 0 0 22px rgba(240,83,101,.65), 0 0 0 8px rgba(240,83,101,.15); animation-delay: .9s;"></div>
+              </div>
+              <div style="text-align:center; margin-top: 10px;">
+                <strong style="color:#ffd4d9">Manual</strong> — 6 apps, notas sueltas y plazos en hojas de cálculo.
+              </div>
+            </div>
+
+            <span class="badge" id="compareLabel">Arrastra para comparar</span>
+            <div class="handle" id="compareHandle">↔</div>
+            <input type="range" id="compareRange" min="0" max="100" value="50" aria-label="Comparador antes/después" />
+          </div>
+
+          <p class="lead" id="tabDesc" style="margin-top: 8px; color: var(--muted);">
+            Caso tipo: caída en supermercado (Marta). OCR detecta “mareos/ansiedad” → sugiere psicopericial; Baremo 2025 proyecta 90–120 días; reclamación y plan de pruebas listos.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 6: SOCIAL PROOF
+  ============================ -->
+  <section id="testimonios" class="screen">
+    <div class="container testimonials">
+      <div class="section-header">
+        <h2 class="reveal">Confianza y Validación</h2>
+        <p class="lead reveal" data-animate="slide-left">Resultados medibles con anclajes y cumplimiento.</p>
+      </div>
+
+      <div class="t-carousel reveal" data-animate="zoom-in" aria-roledescription="carrusel de testimonios">
+        <div class="t-track" id="tTrack">
+          <div class="t-slide">
+            <div class="quote">“Preparamos la reclamación en 36 h con 4 citas ancladas. El cliente vio el timeline y las alertas de plazo en tiempo real.”</div>
+            <div class="who">Socia, despacho de seguros — Barcelona</div>
+          </div>
+          <div class="t-slide">
+            <div class="quote">“La contraoferta subió un 52% tras el comparativo Baremo + jurisprudencia y el aviso de intereses por demora (art. 7 LRCSCVM).”</div>
+            <div class="who">Abogado Senior — RC y Seguros</div>
+          </div>
+          <div class="t-slide">
+            <div class="quote">“Demanda con anexos y anclajes lista en 12 minutos. Dos revisiones y envío con firma cualificada.”</div>
+            <div class="who">Director de Litigación — Bancario</div>
+          </div>
+        </div>
+        <div class="dots" id="tDots" role="tablist" aria-label="Paginación testimonios"></div>
+      </div>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center" class="reveal" data-animate="fade-up" aria-label="Sello de cumplimiento">
+        <span class="chip"><span class="dot"></span> No alucinación: modo retrieval-only + anclajes (CENDOJ/BOE/Proveedor)</span>
+        <span class="chip"><span class="dot"></span> RGPD: DPIA, minimización, AES-256 en reposo, TLS 1.3 en tránsito</span>
+        <span class="chip"><span class="dot"></span> Actualización de Baremo anual con validación humana (DGSFP/UNESPA)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       SECTION 7: CTA FINAL
+  ============================ -->
+  <section id="cta-final" class="screen">
+    <div class="container cta-final">
+      <h1 class="cta-emph reveal" data-animate="zoom-in">Tu Evolución Profesional Empieza Aquí</h1>
+      <p class="reveal" data-animate="slide-left">Solicita una demo personalizada de 15 minutos y descubre el futuro de la abogacía.</p>
+      <div class="cta-stack reveal" data-animate="fade-up">
+        <button class="btn" id="ctaFinalBtn">Quiero Mi Demo</button>
+        <div class="hero-badges">
+          <span class="chip"><span class="dot"></span> Payback estimado: 2–4 meses con ~25–35 expedientes activos</span>
+          <span class="chip"><span class="dot"></span> Velocidad: reclamación previa lista ≤ 48 h tras intake completo</span>
+          <span class="chip"><span class="dot"></span> 0 plazos vencidos; NPS ≥ +60</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===========================
+       MODAL: FORM DEMO
+  ============================ -->
+  <div class="modal" id="demoModal" role="dialog" aria-labelledby="demoTitle" aria-modal="true">
+    <div class="modal-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <h3 id="demoTitle" style="font-family:var(--font-display); font-weight:900; letter-spacing:.5px;">Agenda tu demo (15 minutos)</h3>
+        <button class="btn alt" id="closeModal" aria-label="Cerrar">Cerrar</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="in-row">
+          <div class="input">
+            <label for="name">Nombre y apellidos</label>
+            <input type="text" id="name" placeholder="Ej. Laura Sánchez" autocomplete="name">
+          </div>
+          <div class="input">
+            <label for="email">Email profesional</label>
+            <input type="email" id="email" placeholder="nombre@despacho.com" autocomplete="email">
+          </div>
+        </div>
+        <div class="input">
+          <label for="focus">Área de interés principal</label>
+          <select id="focus">
+            <option>Tráfico / Seguro</option>
+            <option>Responsabilidad Civil</option>
+            <option>Negligencia médica</option>
+            <option>Bancario (revolving / IRPH)</option>
+            <option>Otros</option>
+          </select>
+        </div>
+        <div class="input">
+          <label for="msg">Objetivo y volumen (opcional)</label>
+          <textarea id="msg" rows="3" placeholder="Ej. 30–40 expedientes activos / mes; foco en oferta motivada y demandas."></textarea>
+        </div>
+        <div class="modal-actions">
+          <span class="muted">Cumplimiento por diseño: DPIA, registros de acceso, cifrado, anclajes a fuentes.</span>
+          <div style="display:flex; gap:10px;">
+            <a id="mailtoLink" class="btn" href="mailto:contacto@moragas.legal?subject=Solicitud%20de%20demo%20IJA%20(15%20min)&body=Hola%2C%20me%20gustar%C3%ADa%20agendar%20una%20demo.">Enviar</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===========================
+       FOOTER
+  ============================ -->
+  <footer>
+    Contenido técnico y normativo referenciado: DGSFP (Baremo 2025), BOE (LRCSCVM art. 7), CENDOJ/CGPJ, UNESPA/TIREA, AEPD y EU AI Act. Reutilización comercial de resoluciones sujeta a autorización CENDOJ o proveedor licenciado (VLex/Aranzadi).
+  </footer>
+
+  <!-- ===========================
+       JAVASCRIPT (Vanilla, ES6+)
+  ============================ -->
+  <script>
+    /* =========================================================
+       UTILIDADES
+    ========================================================== */
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => Array.from(el.querySelectorAll(sel));
+
+    const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+    const formatCurrency = (num) => {
+      return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(num);
+    };
+
+    const animateValue = (el, start, end, duration=800, formatter=(v)=>v.toFixed(0)) => {
+      const startTime = performance.now();
+      const diff = end - start;
+      const step = (now) => {
+        const t = clamp((now - startTime) / duration, 0, 1);
+        // easeOutCubic
+        const eased = 1 - Math.pow(1 - t, 3);
+        const val = start + diff * eased;
+        el.textContent = formatter(val);
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    /* =========================================================
+       NAV SCROLL
+    ========================================================== */
+    const nav = $('#nav');
+    const onScrollNav = () => {
+      const sc = window.scrollY || window.pageYOffset;
+      nav.classList.toggle('scrolled', sc > 20);
+    };
+    document.addEventListener('scroll', onScrollNav, { passive: true });
+    onScrollNav();
+
+    /* =========================================================
+       INTERSECTION OBSERVER (reveal animations)
+    ========================================================== */
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    $$('.reveal, [data-animate]').forEach(el => io.observe(el));
+
+    /* =========================================================
+       HERO "VIDEO" SIMULADO (Canvas de partículas)
+    ========================================================== */
+    const heroCanvas = document.getElementById('heroCanvas');
+    const ctx = heroCanvas.getContext('2d');
+    let particles = [];
+    const P_COUNT = 80;
+
+    const resizeCanvas = () => {
+      heroCanvas.width = heroCanvas.clientWidth;
+      heroCanvas.height = heroCanvas.clientHeight;
+    };
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const initParticles = () => {
+      particles = Array.from({ length: P_COUNT }).map(() => {
+        const speed = 0.2 + Math.random()*0.6;
+        return {
+          x: Math.random() * heroCanvas.width,
+          y: Math.random() * heroCanvas.height,
+          r: 0.6 + Math.random()*1.8,
+          vx: (Math.random() - .5) * speed,
+          vy: (Math.random() - .5) * speed,
+          alpha: 0.35 + Math.random()*0.4
+        };
+      });
+    };
+    initParticles();
+
+    const drawParticles = () => {
+      ctx.clearRect(0, 0, heroCanvas.width, heroCanvas.height);
+      // background subtle grid glow
+      ctx.fillStyle = 'rgba(18,20,38, 0.45)';
+      ctx.fillRect(0, 0, heroCanvas.width, heroCanvas.height);
+
+      // links
+      for (let i = 0; i < particles.length; i++){
+        for (let j = i+1; j < particles.length; j++){
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 120){
+            const alpha = (1 - dist/120) * 0.12;
+            ctx.strokeStyle = `rgba(233,69,96, ${alpha})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+
+      // points
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > heroCanvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > heroCanvas.height) p.vy *= -1;
+        ctx.beginPath();
+        const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*6);
+        grad.addColorStop(0, `rgba(255,255,255, ${p.alpha})`);
+        grad.addColorStop(1, 'rgba(233,69,96, 0)');
+        ctx.fillStyle = grad;
+        ctx.arc(p.x, p.y, p.r*4, 0, Math.PI*2);
+        ctx.fill();
+      });
+      requestAnimationFrame(drawParticles);
+    };
+    drawParticles();
+
+    /* =========================================================
+       SECTION 2: EL PROBLEMA (Carrusel)
+    ========================================================== */
+    const painTrack = $('#painTrack');
+    const painPrev = $('#painPrev');
+    const painNext = $('#painNext');
+
+    const scrollByCard = (dir) => {
+      const card = painTrack.querySelector('.pain-card');
+      if (!card) return;
+      const delta = (card.clientWidth + 16) * dir;
+      painTrack.scrollBy({ left: delta, behavior: 'smooth' });
+    };
+    painPrev.addEventListener('click', () => scrollByCard(-1));
+    painNext.addEventListener('click', () => scrollByCard(1));
+
+    // mouse wheel horizontal
+    painTrack.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        painTrack.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
+
+    /* =========================================================
+       SECTION 3: Visual simulada - barras
+    ========================================================== */
+    const barsEl = $('#bars');
+    const makeBars = () => {
+      barsEl.innerHTML = '';
+      const count = 12;
+      for (let i = 0; i < count; i++){
+        const div = document.createElement('div');
+        div.className = 'bar';
+        const height = 20 + Math.random()*80; // px relative by parent height
+        div.style.height = height + '%';
+        div.style.animationDelay = (Math.random()*2) + 's';
+        div.style.animationDuration = (2.5 + Math.random()*2.5) + 's';
+        barsEl.appendChild(div);
+      }
+    };
+    makeBars();
+
+    /* =========================================================
+       SECTION 4: CALCULADORA ROI
+    ========================================================== */
+    const hoursWeek = $('#hoursWeek');
+    const costHour = $('#costHour');
+    const hoursWeekVal = $('#hoursWeekVal');
+    const costHourVal = $('#costHourVal');
+    const calcBtn = $('#calcBtn');
+    const resHours = $('#resHours');
+    const resEuros = $('#resEuros');
+    const calcNote = $('#calcNote');
+
+    const updateLabels = () => {
+      hoursWeekVal.textContent = `${hoursWeek.value} h`;
+      costHourVal.textContent = `${costHour.value} €`;
+      hoursWeek.setAttribute('aria-valuenow', hoursWeek.value);
+      costHour.setAttribute('aria-valuenow', costHour.value);
+    };
+    hoursWeek.addEventListener('input', updateLabels);
+    costHour.addEventListener('input', updateLabels);
+    updateLabels();
+
+    const computeROI = () => {
+      const hWeek = parseFloat(hoursWeek.value);
+      const rate = parseFloat(costHour.value);
+      const efficiency = 0.75; // 75% ahorro central
+      const monthlyHours = hWeek * 4 * efficiency; // ahorro mensual
+      const annualEuros = monthlyHours * rate * 12;
+      return { monthlyHours, annualEuros };
+    };
+
+    let lastH = 0, lastE = 0;
+    calcBtn.addEventListener('click', () => {
+      const { monthlyHours, annualEuros } = computeROI();
+      animateValue(resHours, lastH, monthlyHours, 900, (v) => `${v.toFixed(1)} h`);
+      animateValue(resEuros, lastE, annualEuros, 1100, (v) => formatCurrency(v));
+      lastH = monthlyHours; lastE = annualEuros;
+    });
+
+    // Scroll from hero CTA to ROI
+    $('#cta-hero').addEventListener('click', () => {
+      document.getElementById('roi').scrollIntoView({ behavior: 'smooth' });
+      setTimeout(()=> calcBtn.focus(), 800);
+    });
+
+    /* =========================================================
+       SECTION 5: TABS + BEFORE/AFTER
+    ========================================================== */
+    const tabs = $$('.tab-btn');
+    const tabDesc = $('#tabDesc');
+    const compare = $('#compare');
+    const beforeLayer = $('#beforeLayer');
+    const afterLayer = $('#afterLayer');
+    const compareRange = $('#compareRange');
+    const compareHandle = $('#compareHandle');
+    const compareLabel = $('#compareLabel');
+
+    // Ajusta la anchura del "antes"
+    const setCompare = (pct) => {
+      const clamped = clamp(pct, 0, 100);
+      beforeLayer.style.width = clamped + '%';
+      compareHandle.style.left = `calc(${clamped}% - 18px)`;
+      compareRange.value = clamped;
+      compareLabel.textContent = clamped < 50 ? 'Más “Después”' : (clamped > 50 ? 'Más “Antes”' : 'Arrastra para comparar');
+    };
+    compareRange.addEventListener('input', (e) => setCompare(parseFloat(e.target.value)));
+    setCompare(50);
+
+    // Contenidos por pestaña
+    const contents = {
+      expedientes: {
+        before: 'Manual — 6 apps, notas sueltas, plazos en hojas de cálculo.',
+        after: 'Con IJA — timeline vivo y recordatorios; reclamación en ≤ 48 h.',
+        desc: 'Caso tráfico/RC: intake guiado, OCR/ETL, Baremo 2025 y checklist dinámico. “Oferta motivada” controlada en ≤ 3 meses.'
+      },
+      oraculo: {
+        before: 'Manual — lectura masiva; ratio decidendi difusa.',
+        after: 'Con IJA — consultas naturales y extractos anclados.',
+        desc: 'Búsqueda por hechos, patología, nexo y biomecánica. Respuesta razonada con contraejemplos en ≤ 30 s.'
+      },
+      arsenal: {
+        before: 'Manual — contraofertas sin comparables sólidos.',
+        after: 'Con IJA — Baremo + jurisprudencia análoga y sanción por demora.',
+        desc: 'Perfil táctico por aseguradora y árbol de negociación. Delta medio +35–60% vs. oferta inicial.'
+      }
+    };
+
+    const updateTab = (key) => {
+      tabs.forEach(b => b.classList.toggle('active', b.dataset.tab === key));
+      // Ajusta leyendas (texto central)
+      const c = contents[key];
+      // simple swap de textos
+      afterLayer.querySelector('div:nth-of-type(2)').innerHTML =
+        `<strong style="color:#dff7f0">Con IJA</strong> — ${c.after.replace('Con IJA — ', '')}`;
+      beforeLayer.querySelector('div:nth-of-type(2)').innerHTML =
+        `<strong style="color:#ffd4d9">Manual</strong> — ${c.before.replace('Manual — ', '')}`;
+      tabDesc.textContent = c.desc;
+      // animación suave del comparador al 50
+      setCompare(50);
+    };
+
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => updateTab(btn.dataset.tab));
+    });
+
+    /* =========================================================
+       SECTION 6: TESTIMONIOS (Auto-rotación)
+    ========================================================== */
+    const tTrack = $('#tTrack');
+    const tSlides = $$('.t-slide', tTrack);
+    const tDots = $('#tDots');
+    let tIndex = 0;
+    tSlides.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', `Ir al testimonio ${i+1}`);
+      d.addEventListener('click', () => {
+        tIndex = i; renderTestimonial();
+      });
+      tDots.appendChild(d);
+    });
+    const renderTestimonial = () => {
+      const offset = -100 * tIndex;
+      tTrack.style.transform = `translateX(${offset}%)`;
+      $$('.dot', tDots).forEach((d, i) => d.classList.toggle('active', i === tIndex));
+    };
+    let tTimer = null;
+    const startTestimonials = () => {
+      stopTestimonials();
+      tTimer = setInterval(() => {
+        tIndex = (tIndex + 1) % tSlides.length;
+        renderTestimonial();
+      }, 4200);
+    };
+    const stopTestimonials = () => tTimer && clearInterval(tTimer);
+    startTestimonials();
+    tTrack.addEventListener('mouseenter', stopTestimonials);
+    tTrack.addEventListener('mouseleave', startTestimonials);
+
+    /* =========================================================
+       CTA FINAL: MODAL
+    ========================================================== */
+    const demoModal = $('#demoModal');
+    const ctaFinalBtn = $('#ctaFinalBtn');
+    const closeModal = $('#closeModal');
+    const mailtoLink = $('#mailtoLink');
+
+    const openModal = () => {
+      demoModal.classList.add('open');
+      // Prefill mailto with current form values on each open
+      updateMailto();
+    };
+    const closeModalFn = () => demoModal.classList.remove('open');
+
+    ctaFinalBtn.addEventListener('click', openModal);
+    $('#cta-hero')?.addEventListener('click', () => {}); // Already scrolls to ROI
+    closeModal.addEventListener('click', closeModalFn);
+    demoModal.addEventListener('click', (e) => {
+      if (e.target === demoModal) closeModalFn();
+    });
+
+    // Actualiza mailto con el contenido del formulario
+    const updateMailto = () => {
+      const name = encodeURIComponent($('#name').value || '');
+      const email = encodeURIComponent($('#email').value || '');
+      const focus = encodeURIComponent($('#focus').value || '');
+      const msg = encodeURIComponent($('#msg').value || '');
+
+      const subject = encodeURIComponent('Solicitud de demo IJA (15 min)');
+      const body = encodeURIComponent(
+        `Hola,\n\nMe gustaría agendar una demo de Moragas Legal IJA.\n\n` +
+        `Nombre: ${decodeURIComponent(name)}\n` +
+        `Email: ${decodeURIComponent(email)}\n` +
+        `Área de interés: ${decodeURIComponent(focus)}\n` +
+        `Notas: ${decodeURIComponent(msg)}\n\n` +
+        `Gracias.`
+      );
+
+      mailtoLink.href = `mailto:contacto@moragas.legal?subject=${subject}&body=${body}`;
+    };
+    ['name','email','focus','msg'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateMailto);
+    });
+
+    /* =========================================================
+       TECLAS DE ACCESO / MEJORAS
+    ========================================================== */
+    document.addEventListener('keydown', (e) => {
+      // cerrar modal con ESC
+      if (e.key === 'Escape' && demoModal.classList.contains('open')) closeModalFn();
+      // carrusel problemas con flechas
+      if (document.activeElement === painTrack){
+        if (e.key === 'ArrowRight') scrollByCard(1);
+        if (e.key === 'ArrowLeft') scrollByCard(-1);
+      }
+    });
+
+    /* =========================================================
+       CRÍTICA RIGUROSA (riesgos & mitigación) — tooltip rápido
+    ========================================================== */
+    // Para mantener claridad, solo mostramos un tooltip breve al hacer hover en .calc-note
+    calcNote.title = [
+      'OCR en documentos de mala calidad: pipeline con realce y revisión asistida.',
+      'RAG comercial: requiere licencia (VLex/Aranzadi) o autorización CENDOJ.',
+      'EU AI Act (GPAI, ago-2025): registro de modelos y guardrails adelantados.',
+      'Baremo anual: actualización automática con validación humana (DGSFP/UNESPA).'
+    ].join(' • ');
+
+    /* Ensure sections load with in-view if already visible on refresh */
+    window.addEventListener('load', () => {
+      $$('.reveal, [data-animate]').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.88) el.classList.add('in-view');
+      });
+    });
+  </script>
+</body>
+</html>
